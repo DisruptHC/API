@@ -64,12 +64,40 @@ router.route('/books')
 
 router.route('/books/:book_id')
     .get(function(req, res) {
-
         var book_id = req.params.book_id;
         book_model.findById(book_id)
             .then(function(Book) {
                 // returns null if not found
                 res.json({payload: Book, status_code: 1});
+            })
+            .catch(function(err) {
+                res.json({message: "An error occured: " + err, status_code: 0});
+            });
+    })
+    .put(function(req, res) {
+        // *Todo*
+        // Do validation on post data before db actions.
+        // Check if user has permission to edit given book.
+        // *Todo*
+        var book_id = req.params.book_id;
+        var book_title = req.body.title;
+        var book_author = req.body.author;
+
+        book_model.findById(book_id)
+            .then(function(Book) {
+                if (book_title) {
+                    Book.name = book_title;
+                }
+                if (book_author) {
+                    Book.author = book_author;
+                }
+                Book.save()
+                    .then(function(Book) {
+                        res.json({message: "'" + Book.name + "' by " + Book.author + " succesfully updated.", _id: Book._id, status_code: 1});
+                    })
+                    .catch(function(err) {
+                        res.json({message: "An error occured while updating the database: " + err, status_code: 0});
+                    });
             })
             .catch(function(err) {
                 res.json({message: "An error occured: " + err, status_code: 0});
