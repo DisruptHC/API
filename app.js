@@ -27,28 +27,70 @@ router.get('/', function(req, res) {
     res.json({ message: 'Welcome to BookGenius API!'});
 });
 
-router.post('/books/add', function(req, res) {
-  // *Todo*
-  // Should use MIME type: multipart/form-data for larger payload.
-  // Currently using: x-www-form-urlencoded
-  // Do validation on post data before db actions.
-  // *Todo*
-    var book_title = req.body.title;
-    var book_author = req.body.author;
-    var Book = new book_model({
-      name: book_title,
-      author: book_author
+router.route('/books')
+    .get(function(req, res) {
+        // *Todo*
+        // Should we expose this endpoint?
+        // *Todo*
+        book_model.find()
+            .then(function(result) {
+                res.json({payload: result, status_code: 1});
+            })
+            .catch(function(err) {
+                res.json({message: err, status_code: 0});
+            });
+    })
+    .post(function(req, res) {
+        // *Todo*
+        // Should use MIME type: multipart/form-data for larger payload.
+        // Currently using: x-www-form-urlencoded
+        // Do validation on post data before db actions.
+        // *Todo*
+        var book_title = req.body.title;
+        var book_author = req.body.author;
+
+        var Book = new book_model();
+        Book.name = book_title;
+        Book.author = book_author;
+
+        Book.save()
+            .then(function(Book) {
+                res.json({message: "'" + book_title + "' by " + book_author + " succesfully added to database.", _id: Book._id, status_code: 1});
+            })
+            .catch(function(err) {
+                res.json({message: "An error occured while adding to the database: " + err, status_code: 0});
+            });
     });
-    Book.save()
-      .then(function(Book) {
-          res.json({message: "'" + book_title + "' by " + book_author + "saved to database.", status_code: 1});
-      })
-      .catch(function(err) {
-          res.json({message: "An error occured: " + err, status_code: 0});
-      });
-});
+
+router.route('/books/:book_id')
+    .get(function(req, res) {
+
+        var book_id = req.params.book_id;
+        book_model.findById(book_id)
+            .then(function(Book) {
+                // returns null if not found
+                res.json({payload: Book, status_code: 1});
+            })
+            .catch(function(err) {
+                res.json({message: "An error occured: " + err, status_code: 0});
+            });
+    })
+    .delete(function(req, res) {
+        // *Todo*
+        // Do validation on post data before db actions.
+        // Check if user has permission to delete given book
+        // *Todo*
+        var book_id = req.params.book_id;
+        book_model.findByIdAndRemove(book_id)
+            .then(function(Book) {
+                res.json({message: "'" + Book.name + "' by " + Book.author + " succesfully deleted from database.", status_code: 1});
+            })
+            .catch(function(err) {
+                res.json({message: "An error occured while deleting from the database: " + err, status_code: 0});
+            });
+    });
 
 app.use('/api', router);
 
 app.listen(port);
-console.log('Server Listening on Port: ' + port);
+console.log('Server listening on port ' + port);
