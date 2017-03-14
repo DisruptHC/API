@@ -118,6 +118,29 @@ router.route('/books/:book_id')
             });
     });
 
+// Search path
+router.route('/books/filter')
+    .post(function(req, res) {
+        var searchTerm = req.body.query;
+        if (searchTerm.length >= 3) {
+          // *Todo*
+          // Do validation on post data before db actions.
+          // Regex not perfect but somewhat works... Any three consecutive characters from user string matched
+          // *Todo*
+          var regex = new RegExp("[" + searchTerm + "]{3,}", 'i');
+          book_model.find({$or:[{'name': regex}, {'author': regex}]})
+              .then(function(result) {
+                  res.json({payload: result, status_code: 1});
+              })
+              .catch(function(err) {
+                  res.json({message: err, status_code: 0});
+              });
+        }
+        else {
+            res.json({message: "Search term must be longer than 3 characters.", status_code: 0});
+        }
+    });
+
 app.use('/api', router);
 
 app.listen(port);

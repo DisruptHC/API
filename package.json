@@ -1,7 +1,7 @@
 {
   "name": "bookgenius",
   "version": "1.0.0",
-  "description": "Server-Side API in nodejs for Book Genius Website and Database",
+  "description": "Book Genius Website and Database Backend",
   "main": "app.js",
   "dependencies": {
     "body-parser": "^1.17.1",
