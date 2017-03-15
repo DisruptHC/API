@@ -4,6 +4,7 @@
   "description": "Book Genius Website and Database Backend",
   "main": "app.js",
   "dependencies": {
+    "angular": "^1.6.3",
     "body-parser": "^1.17.1",
     "express": "^4.15.2",
     "mongodb": "^2.2.24",

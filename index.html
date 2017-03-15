@@ -1,0 +1,53 @@
+<html>
+<head>
+<script src="/angular/angular.js"></script>
+<script>
+var app = angular.module("bookgenius", []);
+app.controller("dbController", function($scope, $http) {
+    $scope.formData = {};
+    $scope.searchResults = [];
+    $scope.sendRequest = function() {
+        // *Todo*
+        // Some validation may be required
+        // *Todo*
+        $http({
+            method: 'POST',
+            data: {'query': $scope.formData.query},
+            url: '/api/books/filter'
+        }).then(function successCallback(response) {
+            $scope.populateResults(response);
+        }, function errorCallback(response) {
+            console.log(response);
+        });
+    };
+    $scope.populateResults = function(results) {
+        console.log(results);
+        if (results.data.status_code == 1) {
+            $scope.searchResults.length = 0;
+            if (results.data.payload.length > 0) {
+                angular.forEach(results.data.payload, function(obj, key) {
+                    $scope.searchResults.push(obj.name + " by " + obj.author);
+                });
+            }
+            else {
+                $scope.searchResults.push("No results found");
+            }
+        }
+        else {
+            // Should change page content to reflect error
+            alert(results.data.message);
+        }
+    };
+});
+</script>
+</head>
+<body ng-app="bookgenius" ng-controller="dbController">
+    <form id="searchForm" ng-submit="sendRequest()">
+        <input type="text" name="query" ng-model="formData.query"/>
+        <input type="submit" value="Submit"/>
+    </form>
+    <ul>
+        <li ng-repeat="x in searchResults">{{x}}</li>
+    </ul>
+</body>
+</html>
