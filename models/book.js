@@ -10,7 +10,8 @@ var schema = mongoose.Schema;
 
 var book_schema = new schema({
   name: String,
-  author: String
+  author: String,
+  text: String
 });
 
 var book_model = mongoose.model('Book', book_schema);
